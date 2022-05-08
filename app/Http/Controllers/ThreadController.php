@@ -2,10 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Thread;
 use Illuminate\Http\Request;
+use PhpParser\Node\Stmt\TryCatch;
 
 class ThreadController extends Controller
 {
+    private $thread;
+
+    public function __construct(Thread $thread)
+    {
+        $this->thread = $thread;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -13,7 +21,8 @@ class ThreadController extends Controller
      */
     public function index()
     {
-        //
+        $threads = $this->thread->paginate(15);
+        return view('threads.index', compact('threads'));
     }
 
     /**
@@ -23,7 +32,7 @@ class ThreadController extends Controller
      */
     public function create()
     {
-        //
+        return view('threads.create');
     }
 
     /**
@@ -34,7 +43,12 @@ class ThreadController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $this->thread->create($request->all());
+            dd('Tópico cadastrado com sucesso');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 
     /**
@@ -45,7 +59,7 @@ class ThreadController extends Controller
      */
     public function show($id)
     {
-        //
+        return redirect()->route('threads.edit', $id);
     }
 
     /**
@@ -56,7 +70,8 @@ class ThreadController extends Controller
      */
     public function edit($id)
     {
-        //
+        $thread = $this->thread->find($id);
+        return view('threads.index', compact('thread'));
     }
 
     /**
@@ -68,7 +83,13 @@ class ThreadController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            $thread = $this->thread->find($id);
+            $thread->update($request->all());
+            dd('Tópico atualizado com sucesso');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 
     /**
@@ -79,6 +100,12 @@ class ThreadController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $thread = $this->thread->find($id);
+            $thread->delete();
+            dd('Tópico deletado com sucesso');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 }
